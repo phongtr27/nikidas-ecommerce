@@ -36,11 +36,13 @@ router.post("/", upload.single("category"), async (req, res, err) => {
   if (!req.file)
     return res.status(400).send("Please choose an image to upload.");
 
-  const item = new Category({
+  const category = new Category({
     name: req.body.name,
     img: req.file.path.slice(6),
   });
-  await item.save();
+  await category.save();
+
+  res.send("Successfully Added.");
 });
 
 router.delete("/:id", async (req, res, err) => {
@@ -49,7 +51,53 @@ router.delete("/:id", async (req, res, err) => {
   if (!category)
     return res.status(404).send("Category with given ID not found.");
 
-  return res.send(category);
+  res.send("Successfully Deleted.");
+});
+
+router.put("/:id", upload.single("category"), async (req, res, err) => {
+  let category = await Category.findById(req.params.id);
+  if (!category) {
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) {
+          console.log(err);
+        }
+      });
+    }
+
+    return res.status(404).send("Category with given ID not found.");
+  }
+
+  const oldImagePath = `public${category.img}`;
+
+  const { error } = validate(req.body);
+  if (error) {
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) {
+          console.log(err);
+        }
+      });
+    }
+
+    return res.status(400).send(error.details[0].message);
+  }
+
+  if (!req.file)
+    return res.status(400).send("Please choose an image to upload.");
+
+  await Category.updateOne({
+    name: req.body.name,
+    img: req.file.path.slice(6),
+  });
+
+  fs.unlink(oldImagePath, (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+
+  res.send("Successfully Updated.");
 });
 
 module.exports = router;
