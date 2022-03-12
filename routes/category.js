@@ -1,5 +1,6 @@
 const fs = require("fs");
 const express = require("express");
+const logger = require("../startup/logger");
 const { Category, validate } = require("../models/category");
 const upload = require("../middleware/uploadImage");
 
@@ -25,7 +26,7 @@ router.post("/", upload.single("category"), async (req, res, err) => {
     if (req.file) {
       fs.unlink(req.file.path, (err) => {
         if (err) {
-          console.log(err);
+          logger.error(err);
         }
       });
     }
@@ -60,7 +61,7 @@ router.put("/:id", upload.single("category"), async (req, res, err) => {
     if (req.file) {
       fs.unlink(req.file.path, (err) => {
         if (err) {
-          console.log(err);
+          logger.error(err);
         }
       });
     }
@@ -75,7 +76,7 @@ router.put("/:id", upload.single("category"), async (req, res, err) => {
     if (req.file) {
       fs.unlink(req.file.path, (err) => {
         if (err) {
-          console.log(err);
+          logger.error(err);
         }
       });
     }
@@ -93,7 +94,7 @@ router.put("/:id", upload.single("category"), async (req, res, err) => {
 
   fs.unlink(oldImagePath, (err) => {
     if (err) {
-      console.log(err);
+      logger.error(err);
     }
   });
 
