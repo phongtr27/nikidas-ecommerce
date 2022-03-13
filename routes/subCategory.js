@@ -1,5 +1,4 @@
 const express = require("express");
-const logger = require("../helpers/logger");
 const { SubCategory, validate } = require("../models/subCategory");
 
 const router = express.Router();
