@@ -24,7 +24,7 @@ router.get("/:id", [auth, admin], async (req, res, err) => {
 
 router.post(
 	"/",
-	[auth, admin, upload.single("category")],
+	[auth, admin, upload("categories").single("category")],
 	async (req, res, err) => {
 		const { error } = validate(req.body);
 		if (error) {
@@ -63,7 +63,7 @@ router.delete("/:id", [auth, admin], async (req, res, err) => {
 
 router.put(
 	"/:id",
-	[auth, admin, upload.single("category")],
+	[auth, admin, upload("categories").single("category")],
 	async (req, res, err) => {
 		let category = await Category.findById(req.params.id);
 		if (!category) {

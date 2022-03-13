@@ -5,9 +5,11 @@ const subCategorySchema = new mongoose.Schema({
 	name: {
 		type: String,
 		minlength: 3,
+		maxlength: 100,
+		lowercase: true,
 		required: true,
 	},
-	parentId: { type: mongoose.Schema.Types.ObjectId, ref: "Event" },
+	parentId: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
 });
 
 const SubCategory = mongoose.model("SubCategory", subCategorySchema);
