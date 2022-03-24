@@ -20,10 +20,12 @@ router.get("/:id", async (req, res, err) => {
 });
 
 router.post("/", upload("products").any(), async (req, res, err) => {
+	req.body.details = JSON.parse(req.body.details);
+
 	const { error } = validate(req.body);
 	if (error) {
 		if (req.files[0]) {
-			req.files.map((file) => {
+			req.files.forEach((file) => {
 				fs.unlink(file.path, (err) => {
 					if (err) {
 						logger.error(err);
@@ -45,20 +47,18 @@ router.post("/", upload("products").any(), async (req, res, err) => {
 		description: req.body.description,
 		basePrice: req.body.basePrice,
 		discount: req.body.discount,
-		details: [],
+		details: req.body.details,
 	});
 
-	req.body.colors.map((color) =>
-		product.details.push({ color: color, img: [], quantityPerSize })
-	);
-
-	product.details.map((item, index) => {
-		req.files.map((file) => {
+	product.details.forEach((item, index) => {
+		req.files.forEach((file) => {
 			if (file.fieldname == index) item.img.push(file.path.slice(6));
 		});
-
-		//quanityPerSize
 	});
+
+	await product.save();
+
+	res.send("Successfully Added.");
 });
 
 module.exports = router;

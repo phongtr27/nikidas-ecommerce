@@ -1,6 +1,7 @@
 require("dotenv").config();
 require("express-async-errors");
 const express = require("express");
+const cors = require("cors");
 const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 const logger = require("./helpers/logger");
@@ -13,8 +14,9 @@ const auth = require("./routes/auth");
 const product = require("./routes/product");
 
 const app = express();
+app.use(cors());
 app.use(express.json());
-app.use(express.static("./public"));
+app.use("/public", express.static("public"));
 
 mongoose.connect(
 	process.env.DB,
@@ -32,5 +34,5 @@ app.use("/api/auth", auth);
 app.use("/api/product", product);
 app.use(error);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => logger.info(`listening on port ${PORT}...`));
