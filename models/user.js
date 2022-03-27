@@ -1,15 +1,20 @@
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-require("mongoose-type-email");
 
 const userSchema = new mongoose.Schema({
 	email: {
-		type: mongoose.SchemaTypes.Email,
+		type: String,
+		trim: true,
+		lowercase: true,
 		unique: true,
-		minlength: 5,
-		maxlength: 255,
-		required: true,
+		validate: {
+			validator: function (v) {
+				return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+			},
+			message: "Please enter a valid email",
+		},
+		required: [true, "Email required"],
 	},
 	name: {
 		type: String,

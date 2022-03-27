@@ -1,8 +1,7 @@
-const fs = require("fs");
 const express = require("express");
-const logger = require("../helpers/logger");
 const { Category, validate } = require("../models/category");
 const upload = require("../middleware/uploadImage");
+const deleteImage = require("../helpers/deleteImage");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
 
@@ -29,11 +28,7 @@ router.post(
 		const { error } = validate(req.body);
 		if (error) {
 			if (req.file) {
-				fs.unlink(req.file.path, (err) => {
-					if (err) {
-						logger.error(err);
-					}
-				});
+				deleteImage(req.file.path);
 			}
 
 			return res.status(400).send(error.details[0].message);
@@ -68,11 +63,7 @@ router.put(
 		let category = await Category.findById(req.params.id);
 		if (!category) {
 			if (req.file) {
-				fs.unlink(req.file.path, (err) => {
-					if (err) {
-						logger.error(err);
-					}
-				});
+				deleteImage(req.file.path);
 			}
 
 			return res.status(404).send("Category with given ID not found.");
@@ -83,29 +74,28 @@ router.put(
 		const { error } = validate(req.body);
 		if (error) {
 			if (req.file) {
-				fs.unlink(req.file.path, (err) => {
-					if (err) {
-						logger.error(err);
-					}
-				});
+				deleteImage(req.file.path);
 			}
 
 			return res.status(400).send(error.details[0].message);
 		}
 
-		if (!req.file)
-			return res.status(400).send("Please choose an image to upload.");
+		if (!req.file) {
+			await Category.updateOne(
+				{ _id: req.params.id },
+				{ name: req.body.name }
+			);
+		} else {
+			await Category.updateOne(
+				{ _id: req.params.id },
+				{
+					name: req.body.name,
+					img: req.file.path.slice(6),
+				}
+			);
 
-		await Category.updateOne({
-			name: req.body.name,
-			img: req.file.path.slice(6),
-		});
-
-		fs.unlink(oldImagePath, (err) => {
-			if (err) {
-				logger.error(err);
-			}
-		});
+			deleteImage(oldImagePath);
+		}
 
 		res.send("Successfully Updated.");
 	}
