@@ -7,6 +7,7 @@ const quantityPerSizeSchema = new mongoose.Schema({
 		minlength: 1,
 		maxlength: 5,
 		uppercase: true,
+		unique: true,
 		required: true,
 	},
 	quantity: {
@@ -16,7 +17,7 @@ const quantityPerSizeSchema = new mongoose.Schema({
 	},
 });
 
-const productDetailSchema = new mongoose.Schema({
+const productOptionSchema = new mongoose.Schema({
 	color: {
 		type: String,
 		lowercase: true,
@@ -74,8 +75,8 @@ const productSchema = new mongoose.Schema({
 		get: (v) => v * 100,
 		set: (v) => v / 100,
 	},
-	details: {
-		type: [productDetailSchema],
+	options: {
+		type: [productOptionSchema],
 		required: true,
 	},
 	sold: {
@@ -92,12 +93,9 @@ const validateProduct = (obj) => {
 		category: Joi.string().min(3).max(100).required(),
 		subCategory: Joi.string().min(3).max(100).required(),
 		description: Joi.string().min(3).max(1000).required(),
-		// basePrice: Joi.string()
-		// 	.regex(/^d+(.d{2})?$/)
-		// 	.required(),
 		basePrice: Joi.number().min(0).required(),
 		discount: Joi.number().min(0).max(90).required(),
-		details: Joi.array().items({
+		options: Joi.array().items({
 			color: Joi.string().required(),
 			quantityPerSize: Joi.array().items({
 				size: Joi.string().min(1).max(5).required(),

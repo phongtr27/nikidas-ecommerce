@@ -9,7 +9,11 @@ const subCategorySchema = new mongoose.Schema({
 		lowercase: true,
 		required: true,
 	},
-	parentId: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+	parentId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "Category",
+		required: true,
+	},
 });
 
 const SubCategory = mongoose.model("SubCategory", subCategorySchema);
@@ -17,7 +21,7 @@ const SubCategory = mongoose.model("SubCategory", subCategorySchema);
 const validateSubCategory = (obj) => {
 	const schema = Joi.object({
 		name: Joi.string().min(3).required(),
-		parentId: Joi.objectId(),
+		parentId: Joi.objectId().required(),
 	});
 
 	return schema.validate(obj);

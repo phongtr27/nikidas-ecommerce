@@ -12,6 +12,7 @@ const subCategory = require("./routes/subCategory");
 const user = require("./routes/user");
 const auth = require("./routes/auth");
 const product = require("./routes/product");
+const order = require("./routes/order");
 
 const app = express();
 app.use(cors());
@@ -32,6 +33,7 @@ app.use("/api/sub-category", subCategory);
 app.use("/api/user", user);
 app.use("/api/auth", auth);
 app.use("/api/product", product);
+app.use("/api/order", order);
 app.use(error);
 
 const PORT = process.env.PORT || 5000;

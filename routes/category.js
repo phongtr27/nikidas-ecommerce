@@ -7,12 +7,12 @@ const admin = require("../middleware/admin");
 
 const router = express.Router();
 
-router.get("/", [auth, admin], async (req, res, err) => {
+router.get("/", async (req, res, err) => {
 	const categories = await Category.find();
 	res.send(categories);
 });
 
-router.get("/:id", [auth, admin], async (req, res, err) => {
+router.get("/:id", async (req, res, err) => {
 	const category = await Category.findById(req.params.id);
 
 	if (!category)

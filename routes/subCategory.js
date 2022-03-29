@@ -1,5 +1,7 @@
 const express = require("express");
 const { SubCategory, validate } = require("../models/subCategory");
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
 
 const router = express.Router();
 
@@ -17,7 +19,7 @@ router.get("/:id", async (req, res, err) => {
 	res.send(subCategory);
 });
 
-router.post("/", async (req, res, err) => {
+router.post("/", [auth, admin], async (req, res, err) => {
 	const { error } = validate(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
@@ -30,7 +32,7 @@ router.post("/", async (req, res, err) => {
 	res.send("Successfully Added.");
 });
 
-router.put("/:id", async (req, res, err) => {
+router.put("/:id", [auth, admin], async (req, res, err) => {
 	const { error } = validate(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
@@ -49,7 +51,7 @@ router.put("/:id", async (req, res, err) => {
 	res.send("Successfully Updated.");
 });
 
-router.delete("/:id", async (req, res, err) => {
+router.delete("/:id", [auth, admin], async (req, res, err) => {
 	const subCategory = await SubCategory.findByIdAndDelete(req.params.id);
 
 	if (!subCategory)
