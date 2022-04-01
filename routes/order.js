@@ -33,39 +33,41 @@ router.post("/", async (req, res, err) => {
 			address: req.body.address,
 			paymentMethod: req.body.paymentMethod,
 		});
-		await order.save();
+		await order.save({ session });
 
-		req.body.cart.forEach(async (item) => {
-			const product = await Product.findById(item.productId);
-			const colorIndex = product.options
-				.map((option) => option.color)
-				.indexOf(item.color);
-			const sizeIndex = product.options[colorIndex].quantityPerSize
-				.map((i) => i.size)
-				.indexOf(item.size);
-			// await Product.updateOne({_id: item._id}, {$inc: {options[1]: 0} })
-
-			await Product.updateOne(
-				{ _id: item.productId },
-				{
-					$inc: {
-						sold: item.quantity,
-						"options.$[i].quantityPerSize.$[x].quantity":
-							product.options[colorIndex].quantityPerSize[
-								sizeIndex
-							].quantity >= item.quantity
-								? -item.quantity
-								: 0,
-					},
-				},
-				{
-					arrayFilters: [
-						{ "i.color": item.color },
-						{ "x.size": item.size },
-					],
+		await Promise.all(
+			req.body.cart.map(async (item) => {
+				const product = await Product.findById(item.productId);
+				if (!product) {
+					throw new Error("Product with given ID not found.");
 				}
-			);
-		});
+
+				const colorIndex = product.options
+					.map((option) => option.color)
+					.indexOf(item.color);
+				if (colorIndex < 0) {
+					throw new Error(
+						`This product doesn't have ${item.color} color option.`
+					);
+				}
+
+				const sizeIndex = product.options[colorIndex].quantityPerSize
+					.map((i) => i.size)
+					.indexOf(item.size);
+				if (sizeIndex < 0) {
+					throw new Error(
+						`This product doesn't have ${item.size} size option.`
+					);
+				}
+
+				product.sold += item.quantity;
+				product.options[colorIndex].quantityPerSize[
+					sizeIndex
+				].quantity -= item.quantity;
+
+				await product.save({ session });
+			})
+		);
 
 		await session.commitTransaction();
 		session.endSession();
@@ -73,8 +75,8 @@ router.post("/", async (req, res, err) => {
 	} catch (err) {
 		await session.abortTransaction();
 		session.endSession();
-		logger(err);
-		res.send("Error");
+		logger.error(err.message, err);
+		res.send("Something failed.");
 	}
 });
 
