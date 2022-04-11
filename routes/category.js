@@ -2,6 +2,7 @@ const express = require("express");
 const { Category, validate } = require("../models/category");
 const upload = require("../middleware/uploadImage");
 const deleteImage = require("../helpers/deleteImage");
+const sendErr = require("../helpers/sendError");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
 
@@ -16,7 +17,7 @@ router.get("/:id", async (req, res, err) => {
 	const category = await Category.findById(req.params.id);
 
 	if (!category)
-		return res.status(404).send("Category with given ID not found.");
+		return sendErr(res, 404, "Category with given ID not found.");
 
 	res.send(category);
 });
@@ -31,11 +32,11 @@ router.post(
 				deleteImage(req.file.path);
 			}
 
-			return res.status(400).send(error.details[0].message);
+			return sendErr(res, 400, error.details[0].message);
 		}
 
 		if (!req.file)
-			return res.status(400).send("Please choose an image to upload.");
+			return sendErr(res, 400, "Please choose an image to upload.");
 
 		const category = new Category({
 			name: req.body.name,
@@ -43,7 +44,7 @@ router.post(
 		});
 		await category.save();
 
-		res.send("Successfully Added.");
+		res.send({ message: "Successfully Added." });
 	}
 );
 
@@ -51,9 +52,9 @@ router.delete("/:id", [auth, admin], async (req, res, err) => {
 	const category = await Category.findByIdAndDelete(req.params.id);
 
 	if (!category)
-		return res.status(404).send("Category with given ID not found.");
+		return sendErr(res, 404, "Category with given ID not found.");
 
-	res.send("Successfully Deleted.");
+	res.send({ message: "Successfully Deleted." });
 });
 
 router.put(
@@ -66,7 +67,7 @@ router.put(
 				deleteImage(req.file.path);
 			}
 
-			return res.status(404).send("Category with given ID not found.");
+			return sendErr(res, 404, "Category with given ID not found.");
 		}
 
 		const oldImagePath = `public${category.img}`;
@@ -77,7 +78,7 @@ router.put(
 				deleteImage(req.file.path);
 			}
 
-			return res.status(400).send(error.details[0].message);
+			return sendErr(res, 400, error.details[0].message);
 		}
 
 		if (!req.file) {
@@ -97,7 +98,7 @@ router.put(
 			deleteImage(oldImagePath);
 		}
 
-		res.send("Successfully Updated.");
+		res.send({ message: "Successfully Updated." });
 	}
 );
 

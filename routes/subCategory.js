@@ -2,6 +2,7 @@ const express = require("express");
 const { SubCategory, validate } = require("../models/subCategory");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
+const sendErr = require("../helpers/sendError");
 
 const router = express.Router();
 
@@ -14,14 +15,14 @@ router.get("/:id", async (req, res, err) => {
 	const subCategory = await SubCategory.findById(req.params.id);
 
 	if (!subCategory)
-		return res.status(404).send("Sub-category with given ID not found.");
+		return sendErr(res, 404, "Sub-category with given ID not found.");
 
 	res.send(subCategory);
 });
 
 router.post("/", [auth, admin], async (req, res, err) => {
 	const { error } = validate(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+	if (error) return sendErr(res, 400, error.details[0].message);
 
 	const subCategory = new SubCategory({
 		name: req.body.name,
@@ -29,12 +30,12 @@ router.post("/", [auth, admin], async (req, res, err) => {
 	});
 	await subCategory.save();
 
-	res.send("Successfully Added.");
+	res.send({ message: "Successfully Added." });
 });
 
 router.put("/:id", [auth, admin], async (req, res, err) => {
 	const { error } = validate(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+	if (error) return sendErr(res, 400, error.details[0].message);
 
 	const subCategory = await SubCategory.findByIdAndUpdate(
 		req.params.id,
@@ -46,18 +47,18 @@ router.put("/:id", [auth, admin], async (req, res, err) => {
 	);
 
 	if (!subCategory)
-		return res.status(404).send("Sub-category with given ID not found.");
+		return sendErr(res, 404, "Sub-category with given ID not found.");
 
-	res.send("Successfully Updated.");
+	res.send({ message: "Successfully Updated." });
 });
 
 router.delete("/:id", [auth, admin], async (req, res, err) => {
 	const subCategory = await SubCategory.findByIdAndDelete(req.params.id);
 
 	if (!subCategory)
-		return res.status(404).send("Sub-category with given ID not found.");
+		return sendErr(res, 404, "Sub-category with given ID not found.");
 
-	res.send("Successfully Deleted.");
+	res.send({ message: "Successfully Deleted." });
 });
 
 module.exports = router;

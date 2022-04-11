@@ -3,6 +3,7 @@ const { startSession } = require("mongoose");
 const { Order, validate } = require("../models/order");
 const { Product } = require("../models/product");
 const logger = require("../helpers/logger");
+const sendErr = require("../helpers/sendError");
 
 const router = express.Router();
 
@@ -14,14 +15,14 @@ router.get("/", async (req, res, err) => {
 router.get("/:id", async (req, res, err) => {
 	const order = await Order.findById(req.params.id);
 
-	if (!order) return res.status(404).send("Order with given ID not found.");
+	if (!order) return sendErr(res, 404, "Order with given ID not found.");
 
 	res.send(order);
 });
 
 router.post("/", async (req, res, err) => {
 	const { error } = validate(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+	if (error) return sendErr(res, 400, error.details[0].message);
 
 	const session = await startSession();
 	try {
@@ -71,12 +72,14 @@ router.post("/", async (req, res, err) => {
 
 		await session.commitTransaction();
 		session.endSession();
-		res.send("Congratulations! You have a good taste in fashion.");
+		res.send({
+			message: "Congratulations! You have a good taste in fashion.",
+		});
 	} catch (err) {
 		await session.abortTransaction();
 		session.endSession();
 		logger.error(err.message, err);
-		res.send("Something failed.");
+		sendErr(res, 500, "Something failed.");
 	}
 });
 

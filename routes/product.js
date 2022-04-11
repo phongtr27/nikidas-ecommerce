@@ -2,6 +2,7 @@ const express = require("express");
 const { Product, validate } = require("../models/product");
 const upload = require("../middleware/uploadImage");
 const deleteImage = require("../helpers/deleteImage");
+const sendErr = require("../helpers/sendError");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
 
@@ -15,57 +16,60 @@ router.get("/", async (req, res, err) => {
 router.get("/:id", async (req, res, err) => {
 	const product = await Product.findById(req.params.id);
 
-	if (!product)
-		return res.status(404).send("Product with given ID not found.");
+	if (!product) return sendErr(res, 404, "Product with given ID not found.");
 
 	res.send(product);
 });
 
-router.post("/", upload("products").any(), async (req, res, err) => {
-	req.body.options = JSON.parse(req.body.options);
+router.post(
+	"/",
+	[auth, admin, upload("products").any()],
+	async (req, res, err) => {
+		req.body.options = JSON.parse(req.body.options);
 
-	const { error } = validate(req.body);
-	if (error) {
-		if (req.files.length > 0) {
-			req.files.forEach((file) => {
-				deleteImage(file.path);
-			});
+		const { error } = validate(req.body);
+		if (error) {
+			if (req.files.length > 0) {
+				req.files.forEach((file) => {
+					deleteImage(file.path);
+				});
+			}
+
+			return sendErr(res, 400, error.details[0].message);
 		}
 
-		return res.status(400).send(error.details[0].message);
-	}
+		if (req.files.length == 0)
+			return sendErr(res, 400, "Please choose images to upload.");
 
-	if (req.files.length == 0)
-		return res.status(400).send("Please choose images to upload.");
-
-	const product = new Product({
-		name: req.body.name,
-		category: req.body.category,
-		subCategory: req.body.subCategory,
-		description: req.body.description,
-		basePrice: req.body.basePrice,
-		discount: req.body.discount,
-		options: req.body.options,
-	});
-
-	product.options.forEach((option, index) => {
-		req.files.forEach((file) => {
-			if (file.fieldname == index) option.img.push(file.path.slice(6));
+		const product = new Product({
+			name: req.body.name,
+			category: req.body.category,
+			subCategory: req.body.subCategory,
+			description: req.body.description,
+			basePrice: req.body.basePrice,
+			discount: req.body.discount,
+			options: req.body.options,
 		});
-	});
 
-	await product.save();
+		product.options.forEach((option, index) => {
+			req.files.forEach((file) => {
+				if (file.fieldname == index)
+					option.img.push(file.path.slice(6));
+			});
+		});
 
-	res.send("Successfully Added.");
-});
+		await product.save();
+
+		res.send({ message: "Successfully Added." });
+	}
+);
 
 router.delete("/:id", [auth, admin], async (req, res, err) => {
 	const product = await Product.findByIdAndDelete(req.params.id);
 
-	if (!product)
-		return res.status(404).send("Product with given ID not found.");
+	if (!product) return sendErr(res, 404, "Product with given ID not found.");
 
-	res.send("Successfully Deleted.");
+	res.send({ message: "Successfully Deleted." });
 });
 
 router.put(
@@ -80,7 +84,7 @@ router.put(
 				});
 			}
 
-			return res.status(404).send("Product with given ID not found.");
+			return sendErr(res, 404, "Product with given ID not found.");
 		}
 
 		req.body.options = JSON.parse(req.body.options);
@@ -93,7 +97,7 @@ router.put(
 				});
 			}
 
-			return res.status(400).send(error.details[0].message);
+			return sendErr(res, 400, error.details[0].message);
 		}
 
 		if (req.files.length > 0) {
@@ -136,7 +140,7 @@ router.put(
 			}
 		);
 
-		res.send("Successfully Updated.");
+		res.send({ message: "Successfully Updated." });
 	}
 );
 

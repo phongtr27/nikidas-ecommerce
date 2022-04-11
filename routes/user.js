@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { User, validate } = require("../models/user");
+const sendErr = require("../helpers/sendError");
 const auth = require("../middleware/auth");
 
 const router = express.Router();
@@ -12,10 +13,10 @@ router.get("/me", auth, async (req, res) => {
 
 router.post("/", async (req, res, err) => {
 	const { error } = validate(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+	if (error) return sendErr(res, 400, error.details[0].message);
 
 	let user = await User.findOne({ email: req.body.email });
-	if (user) return res.status(400).send("User already registered.");
+	if (user) return sendErr(res, 400, "User already registered.");
 
 	user = new User({
 		name: req.body.name,
@@ -29,7 +30,9 @@ router.post("/", async (req, res, err) => {
 
 	const token = user.generateAuthToken();
 
-	res.header("x-auth-token", token).send("Successfully Registered.");
+	res.header("x-auth-token", token).send({
+		message: "Successfully Registered.",
+	});
 });
 
 module.exports = router;
