@@ -30,9 +30,7 @@ router.post("/", async (req, res, err) => {
 
 	const token = user.generateAuthToken();
 
-	res.header("x-auth-token", token).send({
-		message: "Successfully Registered.",
-	});
+	res.send({ token });
 });
 
 module.exports = router;
