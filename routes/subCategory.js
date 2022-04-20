@@ -26,7 +26,7 @@ router.post("/", [auth, admin], async (req, res, err) => {
 
 	const subCategory = new SubCategory({
 		name: req.body.name,
-		parentId: req.body.parentId,
+		category: req.body.category,
 	});
 	await subCategory.save();
 
@@ -41,7 +41,7 @@ router.put("/:id", [auth, admin], async (req, res, err) => {
 		req.params.id,
 		{
 			name: req.body.name,
-			parentId: req.body.parentId,
+			category: req.body.category,
 		},
 		{ new: true }
 	);
