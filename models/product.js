@@ -7,7 +7,6 @@ const quantityPerSizeSchema = new mongoose.Schema({
 		minlength: 1,
 		maxlength: 5,
 		uppercase: true,
-		unique: true,
 		required: true,
 	},
 	quantity: {
