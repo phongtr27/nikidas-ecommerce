@@ -54,6 +54,8 @@ router.delete("/:id", [auth, admin], async (req, res, err) => {
 	if (!category)
 		return sendErr(res, 404, "Category with given ID not found.");
 
+	deleteImage(`public${category.img}`);
+
 	res.send({ message: "Successfully Deleted." });
 });
 
