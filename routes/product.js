@@ -69,6 +69,10 @@ router.delete("/:id", [auth, admin], async (req, res, err) => {
 
 	if (!product) return sendErr(res, 404, "Product with given ID not found.");
 
+	product.options.forEach((option) => {
+		option.img.forEach((image) => deleteImage(`public${image}`));
+	});
+
 	res.send({ message: "Successfully Deleted." });
 });
 

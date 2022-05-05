@@ -44,14 +44,12 @@ const productSchema = new mongoose.Schema(
 			type: String,
 			minlength: 3,
 			maxlength: 100,
-			lowercase: true,
 			required: true,
 		},
 		subCategory: {
 			type: String,
 			minlength: 3,
 			maxlength: 100,
-			lowercase: true,
 			required: true,
 		},
 		description: {
