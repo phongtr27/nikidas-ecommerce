@@ -58,7 +58,7 @@ const productSchema = new mongoose.Schema(
 			maxlength: 1000,
 			required: true,
 		},
-		basePrice: {
+		price: {
 			type: Number,
 			min: 0.01,
 			required: true,
@@ -95,7 +95,7 @@ const validateProduct = (obj) => {
 		category: Joi.string().min(3).max(100).required(),
 		subCategory: Joi.string().min(3).max(100).required(),
 		description: Joi.string().min(3).max(1000).required(),
-		basePrice: Joi.number().min(0).required(),
+		price: Joi.number().min(0).required(),
 		discount: Joi.number().min(0).max(90).required(),
 		options: Joi.array().items({
 			img: Joi.array().items(Joi.string()),

@@ -46,7 +46,7 @@ router.post(
 			category: req.body.category,
 			subCategory: req.body.subCategory,
 			description: req.body.description,
-			basePrice: req.body.basePrice,
+			price: req.body.price,
 			discount: req.body.discount,
 			options: req.body.options,
 		});
@@ -138,7 +138,7 @@ router.put(
 				category: req.body.category,
 				subCategory: req.body.subCategory,
 				description: req.body.description,
-				basePrice: req.body.basePrice,
+				price: req.body.price,
 				discount: req.body.discount,
 				options: req.body.options,
 			}
