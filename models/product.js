@@ -5,7 +5,7 @@ const quantityPerSizeSchema = new mongoose.Schema({
 	size: {
 		type: String,
 		minlength: 1,
-		maxlength: 5,
+		maxlength: 8,
 		uppercase: true,
 		required: true,
 	},
@@ -102,7 +102,7 @@ const validateProduct = (obj) => {
 			img: Joi.array().items(Joi.string()),
 			color: Joi.string().required(),
 			quantityPerSize: Joi.array().items({
-				size: Joi.string().min(1).max(5).required(),
+				size: Joi.string().min(1).max(8).required(),
 				quantity: Joi.number().min(0).required(),
 				_id: Joi.objectId(),
 			}),
