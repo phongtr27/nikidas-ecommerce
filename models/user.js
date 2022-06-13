@@ -62,6 +62,9 @@ const validateUser = (obj) => {
 				minDomainSegments: 2,
 				tlds: { allow: ["com", "net"] },
 			})
+			.messages({
+				"string.pattern.base": `Please enter a valid email.`,
+			})
 			.required(),
 		name: Joi.string().min(3).max(255).required(),
 		password: Joi.string().max(5).max(255).required(),

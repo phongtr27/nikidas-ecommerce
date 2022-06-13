@@ -103,7 +103,12 @@ const validateProduct = (obj) => {
 			color: Joi.string().required(),
 			quantityPerSize: Joi.array().items({
 				size: Joi.string().min(1).max(8).required(),
-				quantity: Joi.number().min(0).required(),
+				quantity: Joi.number().min(1).required().messages({
+					"number.empty": `"Quantity" cannot be empty`,
+					"number.min": `"Quantity" must be greater than or equal to 1`,
+					"number.base": `"Quantity" must be a type of number`,
+					"any.required": `"Quantity" is a required field`,
+				}),
 				_id: Joi.objectId(),
 			}),
 			_id: Joi.objectId(),

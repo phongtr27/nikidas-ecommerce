@@ -29,10 +29,13 @@ router.post("/", async (req, res, err) => {
 		session.startTransaction();
 
 		const order = new Order({
-			userId: req.body.userId,
-			cart: req.body.cart,
+			name: req.body.name,
+			phone: req.body.phone,
+			email: req.body.email,
+			note: req.body.note,
 			address: req.body.address,
-			paymentMethod: req.body.paymentMethod,
+			cart: req.body.cart,
+			status: req.body.status,
 		});
 		await order.save({ session });
 
@@ -73,7 +76,7 @@ router.post("/", async (req, res, err) => {
 		await session.commitTransaction();
 		session.endSession();
 		res.send({
-			message: "Congratulations! You have a good taste in fashion.",
+			message: "Order Successfully Placed.",
 		});
 	} catch (err) {
 		await session.abortTransaction();
