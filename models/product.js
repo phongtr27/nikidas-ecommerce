@@ -96,7 +96,7 @@ const validateProduct = (obj) => {
 		category: Joi.string().min(3).max(100).required(),
 		subCategory: Joi.string().min(3).max(100).required(),
 		description: Joi.string().min(3).max(1000).required(),
-		price: Joi.number().min(0).required(),
+		price: Joi.number().min(0.01).required(),
 		discount: Joi.number().min(0).max(90).required(),
 		options: Joi.array().items({
 			img: Joi.array().items(Joi.string()),

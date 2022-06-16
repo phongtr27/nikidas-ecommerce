@@ -13,11 +13,26 @@ router.get("/", async (req, res, err) => {
 });
 
 router.get("/:id", async (req, res, err) => {
+	if (req.params.id === "pending") {
+		const orders = await Order.find({ status: "pending" });
+		return res.send(orders);
+	}
+
 	const order = await Order.findById(req.params.id);
 
 	if (!order) return sendErr(res, 404, "Order with given ID not found.");
 
 	res.send(order);
+});
+
+router.patch("/:id", async (req, res, err) => {
+	const order = await Order.findByIdAndUpdate(req.params.id, {
+		status: req.body.status,
+	});
+
+	if (!order) return sendErr(res, 404, "Order with given ID not found.");
+
+	res.send({ message: "Successfully Updated." });
 });
 
 router.post("/", async (req, res, err) => {
@@ -35,6 +50,7 @@ router.post("/", async (req, res, err) => {
 			note: req.body.note,
 			address: req.body.address,
 			cart: req.body.cart,
+			price: req.body.price,
 			status: req.body.status,
 		});
 		await order.save({ session });
@@ -64,6 +80,13 @@ router.post("/", async (req, res, err) => {
 					);
 				}
 
+				if (
+					product.options[colorIndex].quantityPerSize[sizeIndex]
+						.quantity < item.quantity
+				) {
+					throw new Error(`"${product.name}" is out of stock.`);
+				}
+
 				product.sold += item.quantity;
 				product.options[colorIndex].quantityPerSize[
 					sizeIndex
@@ -82,7 +105,7 @@ router.post("/", async (req, res, err) => {
 		await session.abortTransaction();
 		session.endSession();
 		logger.error(err.message, err);
-		sendErr(res, 500, "Something failed.");
+		sendErr(res, 400, err.message);
 	}
 });
 

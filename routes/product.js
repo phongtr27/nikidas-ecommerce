@@ -26,6 +26,11 @@ router.get("/:id", async (req, res, err) => {
 		return res.send(products);
 	}
 
+	if (req.params.id === "topseller") {
+		const products = await Product.find().sort({ sold: -1 }).limit(5);
+		return res.send(products);
+	}
+
 	const product = await Product.findById(req.params.id);
 
 	if (!product) return sendErr(res, 404, "Product with given ID not found.");
