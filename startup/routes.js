@@ -1,12 +1,12 @@
 const express = require("express");
 const cors = require("cors");
-const category = require("./routes/category");
-const subCategory = require("./routes/subCategory");
-const user = require("./routes/user");
-const auth = require("./routes/auth");
-const product = require("./routes/product");
-const order = require("./routes/order");
-const error = require("./middleware/error");
+const category = require("../routes/category");
+const subCategory = require("../routes/subCategory");
+const user = require("../routes/user");
+const auth = require("../routes/auth");
+const product = require("../routes/product");
+const order = require("../routes/order");
+const error = require("../middleware/error");
 
 module.exports = function (app) {
 	app.use(cors());
